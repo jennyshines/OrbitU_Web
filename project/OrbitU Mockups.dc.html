@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="nocturne.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<style>
+body{margin:0;background:#101120;color:#e9e9ed;font-family:Inter,system-ui,sans-serif}
+.dv-turn{padding:44px 48px 36px;border-bottom:1px solid rgba(233,233,237,.08)}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 22px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#e9e9ed;color:#161826;border-radius:4px;text-decoration:none}
+.dv-tname{font:500 14px/1.2 Inter,sans-serif;color:#e9e9ed}
+.dv-opts{display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:10px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(233,233,237,.12);color:#e9e9ed;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:9px;font:400 11.5px/1.3 Inter,sans-serif;color:#9397ab}
+.dv-opt:target .dv-oid{background:#968ae0;color:#f5f4ff}
+.dv-next{margin:26px 0 0;font:12px/1.6 Inter,sans-serif;color:#75798c}
+.brief{max-width:760px;padding:44px 48px 8px}
+.brief p{font-size:13.5px;line-height:1.65;color:#b2b6ca;text-wrap:pretty}
+.brief h6{color:#968ae0;margin-bottom:10px}
+.scr{width:1280px;background:var(--color-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-md)}
+.mob{width:390px;background:var(--color-bg);border-radius:26px;overflow:hidden;box-shadow:var(--shadow-md)}
+.nav2{display:flex;align-items:center;gap:22px;padding:15px 26px;border-bottom:1px solid var(--color-divider)}
+.brand{display:flex;align-items:center;gap:8px;font:500 17px/1 Inter;margin-right:auto;letter-spacing:-.01em}
+.brand i{color:var(--color-accent);font-size:21px}
+.nl{font-size:13px;color:#b2b6ca;text-decoration:none}
+.nl:hover{color:var(--color-accent)}
+.k{font:500 10.5px/1 Inter;letter-spacing:.11em;text-transform:uppercase;color:#75798c}
+.ph-img{background:repeating-linear-gradient(135deg,#232532 0 7px,#1c1e2b 7px 14px);display:grid;place-items:center;color:#75798c;font:400 9.5px/1.5 ui-monospace,Menlo,monospace;letter-spacing:.05em;text-align:center;border-radius:8px;padding:8px}
+.match{display:inline-flex;align-items:center;gap:5px;font:500 11px Inter;color:#d2cefd;background:#423a6a;border-radius:6px;padding:4px 9px;white-space:nowrap}
+.vbadge{display:inline-flex;align-items:center;gap:4px;font:500 10.5px Inter;color:#cfd3e5}
+.vbadge i{color:var(--color-accent);font-size:13px}
+.mapbg{background:#1a1c2a;background-image:linear-gradient(rgba(147,151,171,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(147,151,171,.09) 1px,transparent 1px);background-size:46px 46px;position:relative;overflow:hidden}
+.pin{position:absolute;transform:translate(-50%,-50%);font:500 11px Inter;background:#e9e9ed;color:#161826;padding:4px 10px;border-radius:20px;box-shadow:0 4px 12px rgba(0,0,0,.55);white-space:nowrap}
+.pin-a{background:#968ae0;color:#f5f4ff}
+.mstat{display:flex;justify-content:space-between;align-items:center;padding:12px 20px 2px;font:500 11px Inter;color:#b2b6ca}
+.mstat i{font-size:12px;margin-left:4px}
+.tabbar{display:flex;justify-content:space-around;padding:11px 0 16px;border-top:1px solid var(--color-divider);color:#75798c;font:500 9.5px Inter}
+.tabbar div{display:flex;flex-direction:column;align-items:center;gap:4px}
+.tabbar i{font-size:19px}
+.step{display:flex;align-items:center;gap:9px;font-size:12.5px;color:#75798c}
+.step b{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font:500 10.5px Inter;border:1px solid rgba(233,233,237,.18)}
+.step-on{color:#e9e9ed}
+.step-on b{border-color:var(--color-accent);color:var(--color-accent)}
+.row{display:flex;align-items:center;gap:10px}
+.srow{display:flex;align-items:center;gap:14px;padding:13px 0;background:linear-gradient(to right,transparent,rgba(233,233,237,.08) 24px,rgba(233,233,237,.08) calc(100% - 24px),transparent) no-repeat bottom/100% 1px}
+.bar{height:6px;border-radius:3px;background:#2b2741;overflow:hidden}
+.bar span{display:block;height:100%;background:var(--color-accent);border-radius:3px}
+</style>
+</helmet>
+
+<div class="brief">
+<h6>Assumptions &amp; direction</h6>
+<p>OrbitU is a two-sided, student-only marketplace for <b>summer sublets around Seattle University</b> — the June–September gap in a 12-month student lease. Seekers are interns and summer-session students; subletters are the tenants leaving town. Both sides enter through the same door, so the homepage is balanced and the term window (not "anytime") is the primary filter.</p>
+<p>Trust is the product: <b>.edu verification</b> gates the whole network, <b>landlord approval</b> is a first-class object on every listing (not fine print), and <b>date matching</b> is treated as a real constraint — a partial-window match is shown as a gap, not hidden. AI does two jobs only: ranking by campus/commute fit, and roommate compatibility. It never invents facts; every AI surface cites what it matched on.</p>
+<p>Built on the Nocturne system — dark blue-grey ground, outlined primary actions, Inter, accent used as line and glow. Photography is placeholdered (striped blocks) for you to drop real Seattle unit photos into. Below: three homepage directions, then eight core screens at desktop and mobile.</p>
+</div>
+
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Homepage hero — three directions</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Search-first — one flush-left promise, the term window built into the search bar</div>
+<div class="scr">
+<div class="nav2"><span class="brand"><i class="ph ph-orbit"></i>OrbitU</span><a class="nl" href="#1d">Browse sublets</a><a class="nl" href="#1f">List your place</a><a class="nl" href="#1h">How verification works</a><a class="btn btn-secondary" href="#1h">Sign in</a><a class="btn btn-primary" href="#1h">Verify .edu</a></div>
+<div style="padding:56px 60px 40px">
+<div class="row" style="margin-bottom:20px"><span class="tag tag-outline">Seattle University</span><span class="k">Summer term · Jun–Sep 2027</span></div>
+<h1 style="font-size:54px;max-width:740px;margin:0 0 16px;letter-spacing:-.025em">Somebody's lease is empty all summer. It should be yours.</h1>
+<p style="max-width:520px;font-size:15.5px;color:#b2b6ca;margin-bottom:28px">Verified Seattle U students subletting to verified students — landlord-approved, dates matched, no Facebook-group roulette.</p>
+<div style="display:flex;align-items:flex-end;gap:0;background:var(--color-surface);border:1px solid var(--color-divider);border-radius:12px;padding:14px 16px;max-width:940px;box-shadow:var(--shadow-sm)">
+<div style="flex:1.4;padding-right:16px;border-right:1px solid var(--color-divider)"><div class="k" style="margin-bottom:5px">Near</div><div style="font-size:14px">Seattle U — Capitol Hill</div></div>
+<div style="flex:1;padding:0 16px;border-right:1px solid var(--color-divider)"><div class="k" style="margin-bottom:5px">Move in</div><div style="font-size:14px">Jun 15</div></div>
+<div style="flex:1;padding:0 16px;border-right:1px solid var(--color-divider)"><div class="k" style="margin-bottom:5px">Move out</div><div style="font-size:14px">Sep 1</div></div>
+<div style="flex:1;padding:0 16px"><div class="k" style="margin-bottom:5px">Budget</div><div style="font-size:14px">Up to $1,100</div></div>
+<a class="btn btn-primary" href="#1d" style="padding:9px 20px"><i class="ph ph-magnifying-glass"></i>Search 214 sublets</a>
+</div>
+<div class="row" style="margin-top:16px;gap:8px"><span class="k" style="margin-right:4px">Popular</span><span class="tag tag-neutral">Furnished</span><span class="tag tag-neutral">Walk to campus</span><span class="tag tag-neutral">Private room</span><span class="tag tag-neutral">Utilities included</span><span class="tag tag-neutral">Internship-length</span></div>
+</div>
+<div style="background:linear-gradient(90deg,#262a60,#353b80 55%,#262a60);padding:26px 60px;display:flex;gap:70px;align-items:center">
+<div><div style="font:500 27px Inter">214</div><div class="k" style="color:#b5abfc">live summer listings</div></div>
+<div><div style="font:500 27px Inter">100%</div><div class="k" style="color:#b5abfc">.edu verified accounts</div></div>
+<div><div style="font:500 27px Inter">9 min</div><div class="k" style="color:#b5abfc">median walk to campus</div></div>
+<div><div style="font:500 27px Inter">1,860</div><div class="k" style="color:#b5abfc">students on the waitlist</div></div>
+<a class="btn btn-secondary" href="#1f" style="margin-left:auto;border-color:rgba(233,233,237,.35)">Subletting instead? List in 6 min<i class="ph ph-arrow-right"></i></a>
+</div>
+<div style="padding:34px 60px 46px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px">
+<div class="row" style="align-items:flex-start;gap:12px"><i class="ph ph-seal-check" style="font-size:22px;color:var(--color-accent)"></i><div><div style="font:500 15px Inter;margin-bottom:4px">Student-only network</div><div style="font-size:13px;color:#9397ab">Every account is checked against a .edu address and a current student ID.</div></div></div>
+<div class="row" style="align-items:flex-start;gap:12px"><i class="ph ph-file-text" style="font-size:22px;color:var(--color-accent)"></i><div><div style="font:500 15px Inter;margin-bottom:4px">Landlord-approved</div><div style="font-size:13px;color:#9397ab">Listings show whether the lease permits subletting — and whether the landlord signed off.</div></div></div>
+<div class="row" style="align-items:flex-start;gap:12px"><i class="ph ph-users-three" style="font-size:22px;color:var(--color-accent)"></i><div><div style="font:500 15px Inter;margin-bottom:4px">Roommate matching</div><div style="font-size:13px;color:#9397ab">If you're sharing, we rank by schedule, quiet hours and cleanliness — not vibes.</div></div></div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Two-door split — the marketplace's two sides get equal weight above the fold</div>
+<div class="scr">
+<div class="nav2"><span class="brand"><i class="ph ph-orbit"></i>OrbitU</span><a class="nl" href="#1d">Browse</a><a class="nl" href="#1f">List</a><a class="nl" href="#1h">Trust &amp; safety</a><a class="btn btn-secondary" href="#1h">Sign in</a></div>
+<div style="padding:46px 60px 18px">
+<div class="k" style="margin-bottom:14px">Seattle University · summer 2027</div>
+<h1 style="font-size:46px;max-width:660px;margin:0 0 8px;letter-spacing:-.025em">Two kinds of student. One empty summer.</h1>
+<p style="font-size:15px;color:#9397ab;max-width:560px">Pick your side. Verification takes about two minutes either way.</p>
+</div>
+<div style="padding:22px 60px 44px;display:grid;grid-template-columns:1fr 1fr;gap:24px">
+<div style="background:var(--color-surface);border-radius:14px;padding:28px;box-shadow:var(--shadow-md);display:flex;flex-direction:column;gap:16px">
+<div class="row"><i class="ph ph-magnifying-glass" style="font-size:24px;color:var(--color-accent)"></i><div class="k">I need a place</div></div>
+<h3 style="margin:0;font-size:26px">Find a summer sublet near campus</h3>
+<p style="font-size:13.5px;color:#9397ab;margin:0">214 verified listings for June through September. Filter by your exact internship dates.</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<div class="field"><label>Move in</label><div class="input" style="display:flex;align-items:center">Jun 15, 2027</div></div>
+<div class="field"><label>Move out</label><div class="input" style="display:flex;align-items:center">Sep 1, 2027</div></div>
+</div>
+<div class="field"><label>Max monthly rent</label><div class="input" style="display:flex;align-items:center">$1,100</div></div>
+<a class="btn btn-primary btn-block" href="#1d">Show matches<i class="ph ph-arrow-right"></i></a>
+<div class="row" style="gap:14px;margin-top:2px"><span class="vbadge"><i class="ph ph-seal-check"></i>Students only</span><span class="vbadge"><i class="ph ph-sparkle"></i>Commute-ranked</span></div>
+</div>
+<div style="background:var(--color-surface);border-radius:14px;padding:28px;box-shadow:var(--shadow-md);display:flex;flex-direction:column;gap:16px">
+<div class="row"><i class="ph ph-key" style="font-size:24px;color:var(--color-accent)"></i><div class="k">I'm leaving for the summer</div></div>
+<h3 style="margin:0;font-size:26px">Cover your rent while you're gone</h3>
+<p style="font-size:13.5px;color:#9397ab;margin:0">List the room you're already paying for. We check your lease's sublet clause and collect landlord sign-off for you.</p>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<div class="field"><label>Your rent</label><div class="input" style="display:flex;align-items:center">$1,240 / mo</div></div>
+<div class="field"><label>Away from</label><div class="input" style="display:flex;align-items:center">Jun 10 – Sep 5</div></div>
+</div>
+<div style="background:#1c1e2b;border-radius:8px;padding:13px 15px;box-shadow:var(--shadow-sm)"><div class="k" style="margin-bottom:4px">Estimate for your block</div><div style="font:500 21px Inter">$980 – $1,150<span style="font-size:12px;color:#9397ab;font-weight:400"> / month</span></div><div style="font-size:11.5px;color:#75798c">Based on 31 listings within 0.5 mi of 12th &amp; Marion</div></div>
+<a class="btn btn-primary btn-block" href="#1f">Start a listing<i class="ph ph-arrow-right"></i></a>
+<div class="row" style="gap:14px;margin-top:2px"><span class="vbadge"><i class="ph ph-file-text"></i>Lease check included</span><span class="vbadge"><i class="ph ph-lock-simple"></i>Deposit held</span></div>
+</div>
+</div>
+<div style="padding:0 60px 40px"><hr class="hr" style="margin-left:-60px;margin-right:-60px">
+<div style="display:flex;gap:56px;align-items:center;padding-top:6px"><div style="font-size:13px;color:#9397ab;max-width:280px">Every match is a real person you can look up in the directory — 100% of accounts are .edu verified.</div>
+<div class="row" style="gap:10px"><div class="ph-img" style="width:44px;height:44px;border-radius:50%;font-size:8px">avatar</div><div class="ph-img" style="width:44px;height:44px;border-radius:50%;font-size:8px">avatar</div><div class="ph-img" style="width:44px;height:44px;border-radius:50%;font-size:8px">avatar</div><div style="width:44px;height:44px;border-radius:50%;background:#423a6a;color:#d2cefd;display:grid;place-items:center;font:500 12px Inter">+1.8k</div></div>
+<a class="btn btn-ghost" href="#1d" style="margin-left:auto">See who's subletting<i class="ph ph-arrow-right"></i></a></div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Term-window hero — the summer is the interface; the map glows behind it</div>
+<div class="scr">
+<div class="nav2" style="border-bottom:none"><span class="brand"><i class="ph ph-orbit"></i>OrbitU</span><a class="nl" href="#1d">Sublets</a><a class="nl" href="#1f">Sublet yours</a><a class="nl" href="#1i">Messages</a><a class="btn btn-primary" href="#1h">Verify .edu</a></div>
+<div style="position:relative;padding:44px 60px 52px;overflow:hidden">
+<div class="mapbg" style="position:absolute;inset:0;opacity:.55"></div>
+<div style="position:absolute;right:-60px;top:-120px;width:560px;height:560px;border-radius:50%;background:radial-gradient(circle,rgba(150,138,224,.30),transparent 66%)"></div>
+<div style="position:relative">
+<div class="k" style="margin-bottom:16px">Jun 15 → Sep 1 · 78 days · Seattle U</div>
+<h1 style="font-size:60px;max-width:800px;margin:0 0 14px;letter-spacing:-.03em;line-height:1.04">Sublet the summer,<br>not the whole lease.</h1>
+<p style="max-width:480px;font-size:15.5px;color:#b2b6ca;margin-bottom:30px">Set your window. We show only the listings that actually cover it — and flag the ones that leave you a gap.</p>
+<div style="background:rgba(35,37,50,.86);backdrop-filter:blur(6px);border:1px solid var(--color-divider);border-radius:14px;padding:20px 22px;max-width:800px;box-shadow:var(--shadow-md)">
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px"><div class="k">Your window</div><div style="font-size:12.5px;color:#b2b6ca">Drag to change · 2 weeks flexible</div></div>
+<div style="position:relative;height:44px">
+<div style="position:absolute;left:0;right:0;top:18px;height:6px;border-radius:3px;background:#2b2741"></div>
+<div style="position:absolute;left:12%;width:64%;top:18px;height:6px;border-radius:3px;background:var(--color-accent);box-shadow:0 0 18px rgba(150,138,224,.7)"></div>
+<div style="position:absolute;left:12%;top:11px;width:20px;height:20px;margin-left:-10px;border-radius:50%;background:#e9e9ed;box-shadow:var(--shadow-md)"></div>
+<div style="position:absolute;left:76%;top:11px;width:20px;height:20px;margin-left:-10px;border-radius:50%;background:#e9e9ed;box-shadow:var(--shadow-md)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;font:400 11px Inter;color:#75798c"><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span></div>
+</div>
+<div style="display:flex;gap:10px;margin-top:16px;align-items:center"><span class="tag tag-accent">158 cover your full window</span><span class="tag tag-neutral">41 partial — gap shown</span><a class="btn btn-primary" href="#1d" style="margin-left:auto">Open results<i class="ph ph-arrow-right"></i></a></div>
+</div>
+</div>
+</div>
+<div style="padding:8px 60px 44px">
+<div class="row" style="justify-content:space-between;margin-bottom:14px"><div class="k">Closest to campus this week</div><a class="btn btn-ghost" href="#1d">All 214<i class="ph ph-arrow-right"></i></a></div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+<div class="card elev-sm" style="padding:0;overflow:hidden"><div class="ph-img" style="height:120px;border-radius:0">unit photo<br>4:3 · dark bg</div><div style="padding:13px 14px"><div class="row" style="justify-content:space-between"><div style="font:500 15px Inter">$940<span style="font-size:11px;color:#9397ab;font-weight:400"> /mo</span></div><span class="match"><i class="ph ph-sparkle"></i>96%</span></div><div style="font-size:12.5px;color:#b2b6ca;margin-top:3px">Private room · 12th &amp; Marion</div><div style="font-size:11.5px;color:#75798c">6 min walk · Jun 12 – Sep 3</div></div></div>
+<div class="card elev-sm" style="padding:0;overflow:hidden"><div class="ph-img" style="height:120px;border-radius:0">unit photo</div><div style="padding:13px 14px"><div class="row" style="justify-content:space-between"><div style="font:500 15px Inter">$1,080<span style="font-size:11px;color:#9397ab;font-weight:400"> /mo</span></div><span class="match"><i class="ph ph-sparkle"></i>91%</span></div><div style="font-size:12.5px;color:#b2b6ca;margin-top:3px">Studio · Broadway</div><div style="font-size:11.5px;color:#75798c">11 min walk · Jun 15 – Aug 28</div></div></div>
+<div class="card elev-sm" style="padding:0;overflow:hidden"><div class="ph-img" style="height:120px;border-radius:0">unit photo</div><div style="padding:13px 14px"><div class="row" style="justify-content:space-between"><div style="font:500 15px Inter">$725<span style="font-size:11px;color:#9397ab;font-weight:400"> /mo</span></div><span class="match"><i class="ph ph-sparkle"></i>88%</span></div><div style="font-size:12.5px;color:#b2b6ca;margin-top:3px">Shared room · Yesler</div><div style="font-size:11.5px;color:#75798c">14 min walk · Jun 1 – Sep 10</div></div></div>
+<div class="card elev-sm" style="padding:0;overflow:hidden"><div class="ph-img" style="height:120px;border-radius:0">unit photo</div><div style="padding:13px 14px"><div class="row" style="justify-content:space-between"><div style="font:500 15px Inter">$1,190<span style="font-size:11px;color:#9397ab;font-weight:400"> /mo</span></div><span class="match"><i class="ph ph-sparkle"></i>84%</span></div><div style="font-size:12.5px;color:#b2b6ca;margin-top:3px">1 bed · First Hill</div><div style="font-size:11.5px;color:#75798c">8 min walk · Jun 20 – Sep 1</div></div></div>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "build out <a class="dv-oid" href="#1c">1c</a> as the real homepage and drop <a class="dv-oid" href="#1a">1a</a>" · "put <a class="dv-oid" href="#1b">1b</a>'s two-door split under <a class="dv-oid" href="#1c">1c</a>'s hero" · "show the seeker flow on mobile too"</p>
+</section>
+
+<section class="dv-turn" id="t2">
+<div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">Core screens — both sides of the marketplace</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1d">
+<div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>Search + map results — date coverage is the primary signal, AI rank is secondary</div>
+<div class="scr">
+<div class="nav2"><span class="brand"><i class="ph ph-orbit"></i>OrbitU</span>
+<div style="display:flex;align-items:center;gap:0;background:var(--color-surface);border:1px solid var(--color-divider);border-radius:10px;padding:6px 8px 6px 14px;margin-right:auto">
+<span style="font-size:13px">Seattle U · 0.8 mi</span><span style="width:1px;height:18px;background:var(--color-divider);margin:0 12px"></span><span style="font-size:13px">Jun 15 – Sep 1</span><span style="width:1px;height:18px;background:var(--color-divider);margin:0 12px"></span><span style="font-size:13px;color:#9397ab">≤ $1,100</span><button class="btn btn-icon btn-ghost" style="margin-left:8px"><i class="ph ph-magnifying-glass"></i></button>
+</div>
+<a class="nl" href="#1i">Messages</a><span class="vbadge"><i class="ph ph-seal-check"></i>Jenny · verified</span></div>
+<div style="display:grid;grid-template-columns:1fr 1fr">
+<div style="padding:18px 24px 24px;border-right:1px solid var(--color-divider)">
+<div class="row" style="gap:8px;margin-bottom:14px;flex-wrap:wrap"><span class="tag tag-outline">Covers full window</span><span class="tag tag-neutral">Furnished</span><span class="tag tag-neutral">Landlord approved</span><span class="tag tag-neutral">Private room</span><span class="tag tag-neutral">≤ 10 min walk</span><span class="tag tag-neutral">+ 6 filters</span></div>
+<div class="row" style="justify-content:space-between;margin-bottom:6px"><div style="font-size:13px;color:#b2b6ca"><b style="font-weight:500;color:#e9e9ed">158 sublets</b> cover Jun 15 – Sep 1</div><div class="row" style="gap:6px;font-size:12.5px;color:#9397ab"><i class="ph ph-sparkle" style="color:var(--color-accent)"></i>Sorted by fit</div></div>
+<div style="background:#1c1e2b;border-radius:8px;padding:12px 14px;margin:10px 0 6px;box-shadow:var(--shadow-sm)"><div class="row" style="gap:8px;align-items:flex-start"><i class="ph ph-sparkle" style="color:var(--color-accent);font-size:16px;margin-top:2px"></i><div style="font-size:12.5px;color:#b2b6ca">Ranked on your <b style="font-weight:500;color:#e9e9ed">Pigott Building</b> class location, a 15-min walk ceiling, and quiet-hours preference. <a href="#1d" style="color:#d2cefd">What we matched on</a></div></div></div>
+
+<div class="srow"><div class="ph-img" style="width:120px;height:88px;flex:none">unit photo</div><div style="flex:1"><div class="row" style="justify-content:space-between"><div style="font:500 16px Inter">$940 <span style="font-size:11.5px;color:#9397ab;font-weight:400">/ mo · utilities in</span></div><span class="match"><i class="ph ph-sparkle"></i>96% fit</span></div><div style="font-size:13px;color:#b2b6ca;margin:3px 0 2px">Private room in 3-bed · 12th &amp; E Marion</div><div class="row" style="gap:12px;font-size:11.5px;color:#75798c"><span><i class="ph ph-person-simple-walk"></i> 6 min to campus</span><span><i class="ph ph-calendar-check"></i> Jun 12 – Sep 3</span></div><div class="row" style="gap:10px;margin-top:7px"><span class="vbadge"><i class="ph ph-seal-check"></i>Landlord approved</span><span class="vbadge"><i class="ph ph-users-three"></i>2 roommates staying</span></div></div><a class="btn btn-secondary" href="#1e">View</a></div>
+
+<div class="srow"><div class="ph-img" style="width:120px;height:88px;flex:none">unit photo</div><div style="flex:1"><div class="row" style="justify-content:space-between"><div style="font:500 16px Inter">$1,080 <span style="font-size:11.5px;color:#9397ab;font-weight:400">/ mo</span></div><span class="match"><i class="ph ph-sparkle"></i>91% fit</span></div><div style="font-size:13px;color:#b2b6ca;margin:3px 0 2px">Furnished studio · Broadway &amp; E Pine</div><div class="row" style="gap:12px;font-size:11.5px;color:#75798c"><span><i class="ph ph-person-simple-walk"></i> 11 min to campus</span><span style="color:#b5abfc"><i class="ph ph-warning"></i> Ends Aug 28 — 4-day gap</span></div><div class="row" style="gap:10px;margin-top:7px"><span class="vbadge"><i class="ph ph-seal-check"></i>Landlord approved</span><span class="vbadge"><i class="ph ph-user"></i>Lives alone</span></div></div><a class="btn btn-secondary" href="#1e">View</a></div>
+
+<div class="srow"><div class="ph-img" style="width:120px;height:88px;flex:none">unit photo</div><div style="flex:1"><div class="row" style="justify-content:space-between"><div style="font:500 16px Inter">$725 <span style="font-size:11.5px;color:#9397ab;font-weight:400">/ mo · shared</span></div><span class="match"><i class="ph ph-sparkle"></i>88% fit</span></div><div style="font-size:13px;color:#b2b6ca;margin:3px 0 2px">Shared room in 2-bed · Yesler Terrace</div><div class="row" style="gap:12px;font-size:11.5px;color:#75798c"><span><i class="ph ph-person-simple-walk"></i> 14 min to campus</span><span><i class="ph ph-calendar-check"></i> Jun 1 – Sep 10</span></div><div class="row" style="gap:10px;margin-top:7px"><span class="vbadge"><i class="ph ph-hourglass"></i>Lease clause pending</span><span class="vbadge"><i class="ph ph-users-three"></i>Roommate match 82%</span></div></div><a class="btn btn-secondary" href="#1e">View</a></div>
+
+<div class="srow" style="background:none"><div class="ph-img" style="width:120px;height:88px;flex:none">unit photo</div><div style="flex:1"><div class="row" style="justify-content:space-between"><div style="font:500 16px Inter">$1,190 <span style="font-size:11.5px;color:#9397ab;font-weight:400">/ mo</span></div><span class="match"><i class="ph ph-sparkle"></i>84% fit</span></div><div style="font-size:13px;color:#b2b6ca;margin:3px 0 2px">1 bed apartment · First Hill</div><div class="row" style="gap:12px;font-size:11.5px;color:#75798c"><span><i class="ph ph-person-simple-walk"></i> 8 min to campus</span><span><i class="ph ph-calendar-check"></i> Jun 20 – Sep 1</span></div><div class="row" style="gap:10px;margin-top:7px"><span class="vbadge"><i class="ph ph-seal-check"></i>Landlord approved</span><span class="vbadge"><i class="ph ph-armchair"></i>Furnished</span></div></div><a class="btn btn-secondary" href="#1e">View</a></div>
+</div>
+<div class="mapbg" style="min-height:640px">
+<div style="position:absolute;left:52%;top:44%;width:340px;height:340px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(150,138,224,.22),transparent 68%)"></div>
+<div style="position:absolute;left:52%;top:44%;transform:translate(-50%,-50%);width:74px;height:74px;border-radius:50%;border:1px solid rgba(150,138,224,.55);display:grid;place-items:center;text-align:center;font:500 9.5px Inter;color:#d2cefd;letter-spacing:.04em">SEATTLE<br>U</div>
+<div class="pin pin-a" style="left:41%;top:36%">$940</div>
+<div class="pin" style="left:63%;top:27%">$1,080</div>
+<div class="pin" style="left:33%;top:58%">$725</div>
+<div class="pin" style="left:66%;top:52%">$1,190</div>
+<div class="pin" style="left:47%;top:66%">$860</div>
+<div class="pin" style="left:56%;top:74%">$1,020</div>
+<div class="pin" style="left:26%;top:41%">$790</div>
+<div style="position:absolute;left:20px;top:20px;display:flex;gap:8px"><button class="btn btn-secondary" style="background:rgba(22,24,38,.85)"><i class="ph ph-stack"></i>Commute layer</button><button class="btn btn-secondary" style="background:rgba(22,24,38,.85)"><i class="ph ph-bus"></i>Transit</button></div>
+<div style="position:absolute;right:20px;bottom:20px;background:rgba(35,37,50,.94);border-radius:10px;padding:14px 16px;width:260px;box-shadow:var(--shadow-md)"><div class="k" style="margin-bottom:6px">Commute layer</div><div style="font-size:12.5px;color:#b2b6ca;margin-bottom:10px">Shaded by walk time to the Pigott Building.</div><div class="row" style="gap:6px;font-size:11px;color:#75798c"><span style="width:34px;height:8px;border-radius:4px;background:#968ae0"></span>0–8<span style="width:34px;height:8px;border-radius:4px;background:#5d5294"></span>8–15<span style="width:34px;height:8px;border-radius:4px;background:#2b2741"></span>15+ min</div></div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1e">
+<div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>Listing detail — lease legality and date coverage sit above the amenities</div>
+<div class="scr">
+<div class="nav2"><span class="brand"><i class="ph ph-orbit"></i>OrbitU</span><a class="nl" href="#1d"><i class="ph ph-arrow-left"></i> Back to 158 results</a><a class="nl" href="#1i">Messages</a><span class="vbadge"><i class="ph ph-seal-check"></i>Jenny · verified</span></div>
+<div style="padding:22px 26px;display:grid;grid-template-columns:2px 1fr;gap:0">
+<div></div>
+<div>
+<div style="display:grid;grid-template-columns:2fr 1fr;grid-template-rows:104px 104px;gap:8px;margin-bottom:22px">
+<div class="ph-img" style="grid-row:span 2;height:100%">hero photo · room shot on dark background<br>1600×1000</div>
+<div class="ph-img">photo · kitchen</div>
+<div class="ph-img">photo · street view</div>
+</div>
+<div style="display:grid;grid-template-columns:1.55fr 1fr;gap:34px">
+<div>
+<div class="row" style="gap:10px;margin-bottom:10px"><span class="tag tag-accent">Covers your full window</span><span class="tag tag-outline">Landlord approved</span></div>
+<h2 style="margin:0 0 6px;font-size:30px">Private room in a 3-bed · 12th &amp; E Marion</h2>
+<div class="row" style="gap:16px;font-size:13px;color:#9397ab;margin-bottom:20px"><span><i class="ph ph-person-simple-walk"></i> 6 min walk to campus</span><span><i class="ph ph-calendar-check"></i> Jun 12 – Sep 3, 2027</span><span><i class="ph ph-armchair"></i> Furnished</span></div>
+
+<div style="background:var(--color-surface);border-radius:10px;padding:16px 18px;margin-bottom:20px;box-shadow:var(--shadow-sm)">
+<div class="k" style="margin-bottom:12px">Sublet legality</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px 22px">
+<div class="row" style="align-items:flex-start;gap:9px"><i class="ph ph-check-circle" style="color:#b5abfc;font-size:17px"></i><div><div style="font-size:13px">Lease permits subletting</div><div style="font-size:11.5px;color:#75798c">Clause 14b, verified by OrbitU</div></div></div>
+<div class="row" style="align-items:flex-start;gap:9px"><i class="ph ph-check-circle" style="color:#b5abfc;font-size:17px"></i><div><div style="font-size:13px">Landlord signed off</div><div style="font-size:11.5px;color:#75798c">Madison Park Mgmt · Mar 3</div></div></div>
+<div class="row" style="align-items:flex-start;gap:9px"><i class="ph ph-check-circle" style="color:#b5abfc;font-size:17px"></i><div><div style="font-size:13px">Sublease template ready</div><div style="font-size:11.5px;color:#75798c">WA state · e-sign in app</div></div></div>
+<div class="row" style="align-items:flex-start;gap:9px"><i class="ph ph-info" style="color:#9397ab;font-size:17px"></i><div><div style="font-size:13px">Deposit $500, refundable</div><div style="font-size:11.5px;color:#75798c">Held by OrbitU until move-out</div></div></div>
+</div>
+</div>
+
+<h4 style="margin:0 0 8px">The summer, from the tenant</h4>
+<p style="font-size:13.5px;color:#b2b6ca;max-width:560px">I'm in Chicago for a 12-week internship and would rather hand my room to another Seattle U student than eat the rent. Corner room, big window, desk stays. Two roommates are around all summer — both grad students, both quiet on weeknights.</p>
+
+<h4 style="margin:20px 0 10px">Who you'd be living with</h4>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:22px">
+<div class="card elev-sm" style="flex-direction:row;align-items:center;gap:12px"><div class="ph-img" style="width:42px;height:42px;border-radius:50%;flex:none;font-size:8px">avatar</div><div><div style="font:500 13.5px Inter">Maya · 2nd yr MSW</div><div style="font-size:11.5px;color:#75798c">Quiet weeknights · cooks · no pets</div></div></div>
+<div class="card elev-sm" style="flex-direction:row;align-items:center;gap:12px"><div class="ph-img" style="width:42px;height:42px;border-radius:50%;flex:none;font-size:8px">avatar</div><div><div style="font:500 13.5px Inter">Dev · 1st yr MBA</div><div style="font-size:11.5px;color:#75798c">Early riser · gym · tidy</div></div></div>
+</div>
+
+<h4 style="margin:0 0 10px">Amenities</h4>
+<div class="row" style="gap:8px;flex-wrap:wrap"><span class="tag tag-neutral">Furnished</span><span class="tag tag-neutral">In-unit laundry</span><span class="tag tag-neutral">Wifi included</span><span class="tag tag-neutral">Desk</span><span class="tag tag-neutral">Street parking</span><span class="tag tag-neutral">No pets</span><span class="tag tag-neutral">A/C</span></div>
+</div>
+
+<div>
+<div style="background:var(--color-surface);border-radius:12px;padding:20px;box-shadow:var(--shadow-md);position:sticky;top:20px">
+<div class="row" style="justify-content:space-between;align-items:baseline"><div style="font:500 26px Inter">$940<span style="font-size:12.5px;color:#9397ab;font-weight:400"> / month</span></div><span class="match"><i class="ph ph-sparkle"></i>96% fit</span></div>
+<div style="font-size:12px;color:#75798c;margin:2px 0 16px">Utilities and wifi included</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px">
+<div class="field"><label>Your move in</label><div class="input" style="display:flex;align-items:center;font-size:13px">Jun 15</div></div>
+<div class="field"><label>Your move out</label><div class="input" style="display:flex;align-items:center;font-size:13px">Sep 1</div></div>
+</div>
+<div style="background:#1c1e2b;border-radius:8px;padding:12px 13px;margin-bottom:14px">
+<div class="row" style="justify-content:space-between;font-size:12.5px;color:#b2b6ca;margin-bottom:6px"><span>Rent · 2.6 months</span><span>$2,444</span></div>
+<div class="row" style="justify-content:space-between;font-size:12.5px;color:#b2b6ca;margin-bottom:6px"><span>Refundable deposit</span><span>$500</span></div>
+<div class="row" style="justify-content:space-between;font-size:12.5px;color:#b2b6ca;margin-bottom:8px"><span>OrbitU service fee</span><span>$73</span></div>
+<div class="row" style="justify-content:space-between;font:500 14px Inter;padding-top:8px;border-top:1px solid var(--color-divider)"><span>Total</span><span>$3,017</span></div>
+</div>
+<a class="btn btn-primary btn-block" href="#1g">Request to sublet</a>
+<a class="btn btn-secondary btn-block" href="#1i">Message Alex</a>
+<div style="font-size:11.5px;color:#75798c;text-align:center;margin-top:10px">You're not charged until Alex accepts</div>
+<hr class="hr" style="margin-left:-20px;margin-right:-20px">
+<div class="row" style="gap:11px"><div class="ph-img" style="width:40px;height:40px;border-radius:50%;flex:none;font-size:8px">avatar</div><div><div style="font:500 13.5px Inter">Alex K.</div><div style="font-size:11.5px;color:#75798c">Seattle U ’27 · Business</div></div></div>
+<div class="row" style="gap:12px;margin-top:9px;flex-wrap:wrap"><span class="vbadge"><i class="ph ph-seal-check"></i>.edu verified</span><span class="vbadge"><i class="ph ph-identification-card"></i>ID checked</span><span class="vbadge"><i class="ph ph-clock"></i>Replies in ~2h</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1f">
+<div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>List your sublease — step 3 of 5, the lease-clause check that makes it legal</div>
+<div class="scr" style="width:1120px">
+<div class="nav2"><span class="brand"><i class="ph ph-orbit"></i>OrbitU</span><span style="font-size:13px;color:#9397ab;margin-right:auto">New listing · draft saved</span><a class="btn btn-ghost" href="#1j">Save &amp; exit</a></div>
+<div style="display:grid;grid-template-columns:250px 1fr 300px">
+<div style="padding:26px 22px;border-right:1px solid var(--color-divider);display:flex;flex-direction:column;gap:18px">
+<div class="k">List your sublease</div>
+<div class="step"><b><i class="ph ph-check" style="font-size:11px"></i></b>Place &amp; address</div>
+<div class="step"><b><i class="ph ph-check" style="font-size:11px"></i></b>Dates you're away</div>
+<div class="step step-on"><b>3</b>Lease &amp; landlord</div>
+<div class="step"><b>4</b>Photos &amp; description</div>
+<div class="step"><b>5</b>Price &amp; deposit</div>
+<div style="margin-top:auto"><div class="bar" style="margin-bottom:7px"><span style="width:52%"></span></div><div style="font-size:11.5px;color:#75798c">About 4 minutes left</div></div>
+</div>
+<div style="padding:30px 34px">
+<div class="k" style="margin-bottom:10px">Step 3 of 5</div>
+<h2 style="margin:0 0 6px;font-size:28px">Can you legally sublet this place?</h2>
+<p style="font-size:13.5px;color:#9397ab;max-width:520px;margin-bottom:24px">Upload your lease and we'll find the sublet clause for you. Nothing goes live until this clears — it's why renters trust OrbitU listings.</p>
+
+<div class="field" style="margin-bottom:20px"><label>Your lease (PDF)</label>
+<div style="border:1px dashed rgba(233,233,237,.22);border-radius:10px;padding:18px;display:flex;align-items:center;gap:14px;background:#1c1e2b">
+<i class="ph ph-file-text" style="font-size:26px;color:var(--color-accent)"></i>
+<div style="flex:1"><div style="font-size:13.5px">lease-1204-marion.pdf</div><div style="font-size:11.5px;color:#75798c">2.1 MB · clause found on page 6</div></div>
+<span class="tag tag-accent">Clause 14b · subletting allowed</span>
+</div>
+</div>
+
+<div style="background:#1c1e2b;border-radius:10px;padding:15px 16px;margin-bottom:22px;box-shadow:var(--shadow-sm)">
+<div class="row" style="gap:9px;align-items:flex-start"><i class="ph ph-sparkle" style="color:var(--color-accent);font-size:17px;margin-top:1px"></i><div><div style="font-size:13px;margin-bottom:4px">We read: <span style="color:#d2cefd">"Tenant may sublet with prior written consent of Landlord, not to be unreasonably withheld."</span></div><div style="font-size:12px;color:#9397ab">So you'll need written consent. We can request it for you — takes most Seattle landlords 2–4 days.</div></div></div>
+</div>
+
+<div class="field" style="margin-bottom:16px"><label>Landlord or property manager</label><div class="input" style="display:flex;align-items:center">Madison Park Management</div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:22px">
+<div class="field"><label>Contact email</label><div class="input" style="display:flex;align-items:center">leasing@madisonparkmgmt.com</div></div>
+<div class="field"><label>Phone (optional)</label><div class="input" style="display:flex;align-items:center;color:#75798c">(206) 555-0142</div></div>
+</div>
+
+<div class="field" style="margin-bottom:24px"><label>How should we get consent?</label>
+<div style="display:flex;flex-direction:column;gap:11px;margin-top:8px">
+<label class="radio"><input type="radio" name="consent" checked><span class="dot"></span>Send the request for me — OrbitU emails a WA-compliant consent form and tracks it</label>
+<label class="radio"><input type="radio" name="consent"><span class="dot"></span>I already have written consent — upload it</label>
+<label class="radio"><input type="radio" name="consent"><span class="dot"></span>My lease doesn't require consent</label>
+</div>
+</div>
+<div class="row" style="gap:10px"><button class="btn btn-secondary"><i class="ph ph-arrow-left"></i>Back</button><button class="btn btn-primary">Send consent request &amp; continue<i class="ph ph-arrow-right"></i></button></div>
+</div>
+<div style="padding:30px 26px;border-left:1px solid var(--color-divider);background:#1a1c2a">
+<div class="k" style="margin-bottom:12px">Live preview</div>
+<div class="card elev-sm" style="padding:0;overflow:hidden;margin-bottom:16px"><div class="ph-img" style="height:112px;border-radius:0">your photos<br>add in step 4</div><div style="padding:12px 13px"><div class="row" style="justify-content:space-between"><div style="font:500 15px Inter">$—<span style="font-size:11px;color:#9397ab;font-weight:400"> /mo</span></div><span class="tag tag-neutral">Draft</span></div><div style="font-size:12.5px;color:#b2b6ca;margin-top:3px">Private room · 12th &amp; E Marion</div><div style="font-size:11.5px;color:#75798c">6 min walk · Jun 10 – Sep 5</div></div></div>
+<div class="k" style="margin-bottom:10px">Why this step matters</div>
+<div style="font-size:12.5px;color:#9397ab;line-height:1.65">Listings with landlord sign-off get <b style="color:#e9e9ed;font-weight:500">3.4× more requests</b> and can use OrbitU's sublease contract and deposit escrow. Without it, your listing shows a "consent pending" flag.</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1g">
+<div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a>Request to sublet — the seeker's offer, with the date gap made explicit</div>
+<div class="scr" style="width:920px">
+<div class="nav2"><span class="brand"><i class="ph ph-orbit"></i>OrbitU</span><span style="font-size:13px;color:#9397ab;margin-right:auto">Request to sublet</span><button class="btn btn-icon btn-ghost"><i class="ph ph-x"></i></button></div>
+<div style="padding:28px 34px 34px;display:grid;grid-template-columns:1.35fr 1fr;gap:32px">
+<div>
+<h2 style="margin:0 0 6px;font-size:26px">Ask Alex for Jun 15 – Sep 1</h2>
+<p style="font-size:13.5px;color:#9397ab;margin-bottom:22px">Alex reviews requests in about 2 hours. Nothing is charged until they accept.</p>
+
+<div class="field" style="margin-bottom:18px"><label>Your dates</label>
+<div style="background:var(--color-surface);border-radius:10px;padding:15px 16px;box-shadow:var(--shadow-sm)">
+<div style="position:relative;height:34px;margin-bottom:10px">
+<div style="position:absolute;left:0;right:0;top:8px;height:8px;border-radius:4px;background:#2b2741"></div>
+<div style="position:absolute;left:6%;width:82%;top:8px;height:8px;border-radius:4px;background:#5d5294"></div>
+<div style="position:absolute;left:14%;width:66%;top:8px;height:8px;border-radius:4px;background:var(--color-accent);box-shadow:0 0 14px rgba(150,138,224,.6)"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-between;font:400 10.5px Inter;color:#75798c"><span>Jun 1</span><span>Jul 1</span><span>Aug 1</span><span>Sep 15</span></div>
+</div>
+<div class="row" style="gap:16px;font-size:11.5px;color:#9397ab"><span class="row" style="gap:6px"><span style="width:20px;height:6px;border-radius:3px;background:var(--color-accent)"></span>Your stay</span><span class="row" style="gap:6px"><span style="width:20px;height:6px;border-radius:3px;background:#5d5294"></span>Alex's availability</span><span style="margin-left:auto;color:#b5abfc"><i class="ph ph-check-circle"></i> Fully covered</span></div>
+</div>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px">
+<div class="field"><label>Who's staying</label><div class="input" style="display:flex;align-items:center">Just me</div></div>
+<div class="field"><label>Reason for the summer</label><div class="input" style="display:flex;align-items:center">Internship — Amazon, SLU</div></div>
+</div>
+
+<div class="field" style="margin-bottom:18px"><label>Note to Alex</label><div class="input" style="min-height:96px;padding:11px 12px;font-size:13.5px;color:#b2b6ca">Hi Alex — I'm a rising senior in Nursing, interning in South Lake Union Jun–Aug. I'm quiet on weeknights, cook most meals, no pets. Happy to overlap a day for the handoff if that helps.</div></div>
+
+<div class="field" style="margin-bottom:22px"><label>Share with your request</label>
+<div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+<label class="radio"><input type="radio" name="share" checked><span class="dot"></span>Verified profile + roommate compatibility (recommended)</label>
+<label class="radio"><input type="radio" name="share"><span class="dot"></span>Verified profile only</label>
+</div>
+</div>
+<div class="row" style="gap:10px"><button class="btn btn-primary">Send request<i class="ph ph-paper-plane-right"></i></button><button class="btn btn-secondary">Message first</button></div>
+</div>
+
+<div>
+<div class="card elev-sm" style="padding:0;overflow:hidden;margin-bottom:16px"><div class="ph-img" style="height:104px;border-radius:0">unit photo</div><div style="padding:13px 14px"><div style="font:500 14px Inter">Private room · 12th &amp; E Marion</div><div style="font-size:11.5px;color:#75798c;margin-top:2px">6 min walk · Furnished · Landlord approved</div></div></div>
+<div style="background:var(--color-surface);border-radius:10px;padding:15px 16px;box-shadow:var(--shadow-sm);margin-bottom:16px">
+<div class="k" style="margin-bottom:11px">If accepted</div>
+<div class="row" style="justify-content:space-between;font-size:12.5px;color:#b2b6ca;margin-bottom:6px"><span>Rent · Jun 15 – Sep 1</span><span>$2,444</span></div>
+<div class="row" style="justify-content:space-between;font-size:12.5px;color:#b2b6ca;margin-bottom:6px"><span>Deposit (refundable)</span><span>$500</span></div>
+<div class="row" style="justify-content:space-between;font-size:12.5px;color:#b2b6ca;margin-bottom:8px"><span>Service fee</span><span>$73</span></div>
+<div class="row" style="justify-content:space-between;font:500 14px Inter;padding-top:8px;border-top:1px solid var(--color-divider);margin-bottom:10px"><span>Due at acceptance</span><span>$1,514</span></div>
+<div style="font-size:11.5px;color:#75798c">First month + deposit + fee. The rest is billed monthly on the 1st.</div>
+</div>
+<div style="background:#1c1e2b;border-radius:10px;padding:14px 15px">
+<div class="row" style="gap:8px;align-items:flex-start"><i class="ph ph-users-three" style="color:var(--color-accent);font-size:17px;margin-top:1px"></i><div><div style="font:500 13px Inter;margin-bottom:5px">Roommate compatibility 94%</div><div style="font-size:12px;color:#9397ab;line-height:1.6">Matched on quiet hours (both after 11pm), cleanliness, and cooking at home. Mismatch: you have guests over more often than Maya prefers.</div></div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1j">
+<div class="dv-olabel"><a class="dv-oid" href="#1j">1j</a>Host dashboard — one summer, one listing, the states that actually block a deal</div>
+<div class="scr" style="width:1120px">
+<div class="nav2"><span class="brand"><i class="ph ph-orbit"></i>OrbitU</span><a class="nl" href="#1j" aria-current="page">Dashboard</a><a class="nl" href="#1i">Messages</a><a class="nl" href="#1k">Payments</a><span class="vbadge" style="margin-left:auto"><i class="ph ph-seal-check"></i>Alex · verified</span></div>
+<div style="padding:26px 30px 34px">
+<div class="row" style="justify-content:space-between;margin-bottom:22px"><div><h2 style="margin:0 0 4px;font-size:26px">Your summer, at a glance</h2><div style="font-size:13px;color:#9397ab">Jun 10 – Sep 5 · 87 days away · 1 listing live</div></div><a class="btn btn-primary" href="#1f">Edit listing</a></div>
+
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px">
+<div class="card elev-sm"><div class="card-kicker">Requests</div><div style="font:500 27px Inter">3</div><div style="font-size:11.5px;color:#75798c">2 cover your full window</div></div>
+<div class="card elev-sm"><div class="card-kicker">Views this week</div><div style="font:500 27px Inter">148</div><div style="font-size:11.5px;color:#75798c">+31% vs last week</div></div>
+<div class="card elev-sm"><div class="card-kicker">Rent covered</div><div style="font:500 27px Inter">76%</div><div class="bar" style="margin-top:6px"><span style="width:76%"></span></div></div>
+<div class="card elev-sm" style="box-shadow:0 0 0 1px var(--color-accent)"><div class="card-kicker">Needs you</div><div style="font:500 27px Inter">1</div><div style="font-size:11.5px;color:#b5abfc">Landlord consent expires in 4 days</div></div>
+</div>
+
+<div style="display:grid;grid-template-columns:1.5fr 1fr;gap:26px">
+<div>
+<div class="row" style="justify-content:space-between;margin-bottom:8px"><div class="k">Requests to sublet</div><a class="btn btn-ghost" href="#1g">Request settings</a></div>
+<table class="table">
+<thead><tr><th>Student</th><th>Dates</th><th>Fit</th><th>Status</th><th></th></tr></thead>
+<tbody>
+<tr><td><div class="row" style="gap:9px"><div class="ph-img" style="width:30px;height:30px;border-radius:50%;flex:none;font-size:7px">av</div><div><div style="font-size:13px">Jenny S.</div><div style="font-size:11px;color:#75798c">Nursing ’27 · verified</div></div></div></td><td><div style="font-size:12.5px">Jun 15 – Sep 1</div><div style="font-size:11px;color:#b5abfc">Full cover</div></td><td><span class="match"><i class="ph ph-sparkle"></i>96%</span></td><td><span class="tag tag-accent">New</span></td><td><a class="btn btn-secondary" href="#1g">Review</a></td></tr>
+<tr><td><div class="row" style="gap:9px"><div class="ph-img" style="width:30px;height:30px;border-radius:50%;flex:none;font-size:7px">av</div><div><div style="font-size:13px">Marcus T.</div><div style="font-size:11px;color:#75798c">CS ’26 · verified</div></div></div></td><td><div style="font-size:12.5px">Jun 20 – Aug 20</div><div style="font-size:11px;color:#75798c">16-day gap</div></td><td><span class="match"><i class="ph ph-sparkle"></i>88%</span></td><td><span class="tag tag-neutral">Messaged</span></td><td><a class="btn btn-secondary" href="#1i">Reply</a></td></tr>
+<tr><td><div class="row" style="gap:9px"><div class="ph-img" style="width:30px;height:30px;border-radius:50%;flex:none;font-size:7px">av</div><div><div style="font-size:13px">Priya R.</div><div style="font-size:11px;color:#75798c">MBA ’27 · verified</div></div></div></td><td><div style="font-size:12.5px">Jun 10 – Sep 5</div><div style="font-size:11px;color:#b5abfc">Full cover</div></td><td><span class="match"><i class="ph ph-sparkle"></i>81%</span></td><td><span class="tag tag-neutral">Awaiting you</span></td><td><a class="btn btn-secondary" href="#1g">Review</a></td></tr>
+</tbody>
+</table>
+<div class="k" style="margin:24px 0 10px">Your listing</div>
+<div class="card elev-sm" style="flex-direction:row;gap:14px;align-items:center"><div class="ph-img" style="width:96px;height:70px;flex:none">unit photo</div><div style="flex:1"><div style="font:500 14.5px Inter">Private room in 3-bed · 12th &amp; E Marion</div><div style="font-size:12px;color:#9397ab;margin:2px 0 6px">$940 / mo · Jun 10 – Sep 5 · Furnished</div><div class="row" style="gap:12px"><span class="vbadge"><i class="ph ph-seal-check"></i>Landlord approved</span><span class="vbadge"><i class="ph ph-eye"></i>Live</span></div></div><a class="btn btn-secondary" href="#1e">Preview</a></div>
+</div>
+<div>
+<div style="background:var(--color-surface);border-radius:10px;padding:16px 17px;box-shadow:0 0 0 1px var(--color-accent);margin-bottom:16px">
+<div class="row" style="gap:8px;margin-bottom:8px"><i class="ph ph-warning" style="color:#b5abfc;font-size:17px"></i><div class="k" style="color:#d2cefd">Action needed</div></div>
+<div style="font-size:13px;margin-bottom:5px">Landlord consent expires Sep 9</div>
+<div style="font-size:12px;color:#9397ab;margin-bottom:12px">Madison Park Mgmt's written consent covers Jun 10 – Sep 5. Re-request if you extend your dates.</div>
+<button class="btn btn-primary btn-block">Re-request consent</button>
+</div>
+<div class="k" style="margin-bottom:10px">Checklist before handoff</div>
+<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+<div class="row" style="gap:9px;font-size:13px"><i class="ph ph-check-circle" style="color:#b5abfc;font-size:16px"></i>Lease clause verified</div>
+<div class="row" style="gap:9px;font-size:13px"><i class="ph ph-check-circle" style="color:#b5abfc;font-size:16px"></i>Landlord consent on file</div>
+<div class="row" style="gap:9px;font-size:13px;color:#9397ab"><i class="ph ph-circle" style="font-size:16px"></i>Sublease signed by both parties</div>
+<div class="row" style="gap:9px;font-size:13px;color:#9397ab"><i class="ph ph-circle" style="font-size:16px"></i>Move-in photos uploaded</div>
+<div class="row" style="gap:9px;font-size:13px;color:#9397ab"><i class="ph ph-circle" style="font-size:16px"></i>Key handoff arranged</div>
+</div>
+<div style="background:#1c1e2b;border-radius:10px;padding:14px 15px"><div class="row" style="gap:8px;align-items:flex-start"><i class="ph ph-sparkle" style="color:var(--color-accent);font-size:16px;margin-top:1px"></i><div style="font-size:12px;color:#9397ab;line-height:1.6"><b style="color:#e9e9ed;font-weight:500">Pricing note:</b> similar rooms within 0.5 mi are asking $980–$1,150. Raising to $995 would still keep you in the top third for fit.</div></div></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1k">
+<div class="dv-olabel"><a class="dv-oid" href="#1k">1k</a>Payments &amp; deposit — escrow shown as a timeline, not a balance</div>
+<div class="scr" style="width:920px">
+<div class="nav2"><span class="brand"><i class="ph ph-orbit"></i>OrbitU</span><a class="nl" href="#1j">Dashboard</a><a class="nl" href="#1k" aria-current="page">Payments</a><a class="nl" href="#1i">Messages</a><span class="vbadge" style="margin-left:auto"><i class="ph ph-seal-check"></i>Jenny · verified</span></div>
+<div style="padding:26px 32px 34px">
+<h2 style="margin:0 0 4px;font-size:26px">Payments &amp; deposit</h2>
+<div style="font-size:13px;color:#9397ab;margin-bottom:24px">12th &amp; E Marion · Jun 15 – Sep 1, 2027 · subletting from Alex K.</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:26px">
+<div style="background:var(--color-surface);border-radius:12px;padding:19px 20px;box-shadow:var(--shadow-sm)">
+<div class="k" style="margin-bottom:8px">Deposit in escrow</div>
+<div style="font:500 30px Inter;margin-bottom:4px">$500.00</div>
+<div style="font-size:12px;color:#9397ab;margin-bottom:14px">Held by OrbitU, not by Alex. Released 7 days after move-out unless a claim is filed.</div>
+<div class="row" style="gap:12px"><span class="vbadge"><i class="ph ph-lock-simple"></i>Escrow · Stripe Treasury</span><span class="vbadge"><i class="ph ph-calendar"></i>Releases Sep 8</span></div>
+</div>
+<div style="background:var(--color-surface);border-radius:12px;padding:19px 20px;box-shadow:var(--shadow-sm)">
+<div class="k" style="margin-bottom:8px">Next payment</div>
+<div style="font:500 30px Inter;margin-bottom:4px">$940.00</div>
+<div style="font-size:12px;color:#9397ab;margin-bottom:14px">Auto-pays Jul 1 from Visa ···· 4417. Rent is only ever charged for nights you hold.</div>
+<div class="row" style="gap:10px"><button class="btn btn-secondary">Change method</button><button class="btn btn-ghost">Pay early</button></div>
+</div>
+</div>
+
+<div class="k" style="margin-bottom:14px">Schedule</div>
+<table class="table" style="margin-bottom:26px">
+<thead><tr><th>Date</th><th>What</th><th>Method</th><th>Status</th><th style="text-align:right">Amount</th></tr></thead>
+<tbody>
+<tr><td>May 28</td><td>Deposit + first month + service fee</td><td>Visa ···· 4417</td><td><span class="tag tag-neutral">Paid</span></td><td style="text-align:right">$1,513.60</td></tr>
+<tr><td>Jul 1</td><td>Rent · July</td><td>Visa ···· 4417</td><td><span class="tag tag-outline">Scheduled</span></td><td style="text-align:right">$940.00</td></tr>
+<tr><td>Aug 1</td><td>Rent · August</td><td>Visa ···· 4417</td><td><span class="tag tag-outline">Scheduled</span></td><td style="text-align:right">$940.00</td></tr>
+<tr><td>Sep 1</td><td>Rent · Sep 1 only (prorated)</td><td>Visa ···· 4417</td><td><span class="tag tag-outline">Scheduled</span></td><td style="text-align:right">$31.33</td></tr>
+<tr><td>Sep 8</td><td>Deposit release</td><td>To Visa ···· 4417</td><td><span class="tag tag-neutral">Pending move-out</span></td><td style="text-align:right">– $500.00</td></tr>
+</tbody>
+</table>
+
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+<div style="background:#1c1e2b;border-radius:10px;padding:15px 16px"><div class="row" style="gap:9px;align-items:flex-start"><i class="ph ph-camera" style="color:var(--color-accent);font-size:18px;margin-top:1px"></i><div><div style="font:500 13px Inter;margin-bottom:4px">Protect your deposit</div><div style="font-size:12px;color:#9397ab;line-height:1.6">Upload move-in photos within 48 hours of getting the keys. Both sides see the same set, timestamped.</div><button class="btn btn-secondary" style="margin-top:10px">Upload move-in photos</button></div></div></div>
+<div style="background:#1c1e2b;border-radius:10px;padding:15px 16px"><div class="row" style="gap:9px;align-items:flex-start"><i class="ph ph-scales" style="color:var(--color-accent);font-size:18px;margin-top:1px"></i><div><div style="font:500 13px Inter;margin-bottom:4px">If something goes wrong</div><div style="font-size:12px;color:#9397ab;line-height:1.6">Either side can open a claim before the release date. OrbitU holds the funds while it's reviewed — WA deposit law applies.</div><button class="btn btn-ghost" style="margin-top:10px">Read the deposit policy<i class="ph ph-arrow-right"></i></button></div></div></div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1h">
+<div class="dv-olabel"><a class="dv-oid" href="#1h">1h</a>Verification — .edu, then student ID; the gate the whole network rests on</div>
+<div class="row" style="gap:22px;align-items:flex-start">
+<div class="mob">
+<div class="mstat"><span>9:41</span><span><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+<div style="padding:26px 22px 30px">
+<span class="brand" style="margin-bottom:30px"><i class="ph ph-orbit"></i>OrbitU</span>
+<div class="k" style="margin:26px 0 10px">Step 1 of 2</div>
+<h3 style="margin:0 0 8px;font-size:24px">Start with your student email</h3>
+<p style="font-size:13.5px;color:#9397ab;margin-bottom:22px">OrbitU is students only. We check the domain against enrolled institutions — Seattle U included.</p>
+<div class="field" style="margin-bottom:14px"><label>Student email</label><div class="input" style="display:flex;align-items:center;justify-content:space-between">jshines@seattleu.edu<i class="ph ph-check-circle" style="color:#b5abfc"></i></div></div>
+<div style="background:#1c1e2b;border-radius:8px;padding:12px 13px;margin-bottom:20px"><div class="row" style="gap:8px;align-items:flex-start"><i class="ph ph-buildings" style="color:var(--color-accent);font-size:16px"></i><div style="font-size:12.5px;color:#b2b6ca">Recognized: <b style="font-weight:500;color:#e9e9ed">Seattle University</b>. We'll send a 6-digit code.</div></div></div>
+<button class="btn btn-primary btn-block">Send code</button>
+<div style="font-size:11.5px;color:#75798c;text-align:center;margin-top:12px">We never show your email to other students.</div>
+<hr class="hr">
+<div class="row" style="gap:9px;font-size:12.5px;color:#9397ab"><i class="ph ph-shield-check" style="color:var(--color-accent);font-size:17px"></i>Not a student? OrbitU isn't open to the public — that's the point.</div>
+</div>
+<div class="tabbar"><div><i class="ph ph-magnifying-glass"></i>Browse</div><div><i class="ph ph-heart"></i>Saved</div><div><i class="ph ph-chat-circle"></i>Messages</div><div style="color:#968ae0"><i class="ph ph-user-circle"></i>You</div></div>
+</div>
+<div class="mob">
+<div class="mstat"><span>9:43</span><span><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+<div style="padding:26px 22px 30px">
+<div class="row" style="justify-content:space-between;margin-bottom:24px"><button class="btn btn-icon btn-ghost"><i class="ph ph-arrow-left"></i></button><div class="bar" style="flex:1;margin:0 14px"><span style="width:70%"></span></div><span style="font-size:11.5px;color:#75798c">2 / 2</span></div>
+<div class="k" style="margin-bottom:10px">Step 2 of 2</div>
+<h3 style="margin:0 0 8px;font-size:24px">Now your student ID</h3>
+<p style="font-size:13.5px;color:#9397ab;margin-bottom:20px">A photo of your SU ID confirms you're currently enrolled. It's checked once and never shown publicly.</p>
+<div class="ph-img" style="height:170px;margin-bottom:8px">camera viewfinder<br>ID card centered in frame</div>
+<div class="row" style="gap:8px;justify-content:center;margin-bottom:18px"><span class="vbadge"><i class="ph ph-check"></i>Edges detected</span><span class="vbadge"><i class="ph ph-check"></i>Name legible</span></div>
+<button class="btn btn-primary btn-block">Use this photo</button>
+<button class="btn btn-ghost btn-block">Retake</button>
+<div style="background:#1c1e2b;border-radius:8px;padding:12px 13px;margin-top:20px"><div class="row" style="gap:8px;align-items:flex-start"><i class="ph ph-lock-simple" style="color:var(--color-accent);font-size:16px"></i><div style="font-size:12px;color:#9397ab;line-height:1.6">Your ID image is deleted after review. Other students only ever see the badge: <span class="vbadge" style="display:inline-flex"><i class="ph ph-seal-check"></i>verified</span></div></div></div>
+</div>
+<div class="tabbar"><div><i class="ph ph-magnifying-glass"></i>Browse</div><div><i class="ph ph-heart"></i>Saved</div><div><i class="ph ph-chat-circle"></i>Messages</div><div style="color:#968ae0"><i class="ph ph-user-circle"></i>You</div></div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1i">
+<div class="dv-olabel"><a class="dv-oid" href="#1i">1i</a>Messaging — the thread carries the deal state, so the chat isn't the contract</div>
+<div class="row" style="gap:22px;align-items:flex-start">
+<div class="mob">
+<div class="mstat"><span>9:41</span><span><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph ph-battery-full"></i></span></div>
+<div style="padding:8px 0 0">
+<div class="row" style="gap:11px;padding:10px 18px 12px;border-bottom:1px solid var(--color-divider)"><button class="btn btn-icon btn-ghost"><i class="ph ph-arrow-left"></i></button><div class="ph-img" style="width:34px;height:34px;border-radius:50%;flex:none;font-size:7px">av</div><div style="flex:1"><div style="font:500 14px Inter">Alex K.</div><div class="row" style="gap:5px;font-size:11px;color:#75798c"><i class="ph ph-seal-check" style="color:var(--color-accent)"></i>Verified · Seattle U ’27</div></div><button class="btn btn-icon btn-ghost"><i class="ph ph-info"></i></button></div>
+<div style="padding:12px 18px;background:#1c1e2b;border-bottom:1px solid var(--color-divider)">
+<div class="row" style="gap:10px"><div class="ph-img" style="width:44px;height:34px;flex:none;font-size:7px">photo</div><div style="flex:1"><div style="font:500 12.5px Inter">Private room · 12th &amp; E Marion</div><div style="font-size:11px;color:#75798c">$940 / mo · Jun 15 – Sep 1</div></div><span class="tag tag-accent">Request sent</span></div>
+</div>
+<div style="padding:16px 18px;display:flex;flex-direction:column;gap:11px;min-height:400px">
+<div style="text-align:center;font-size:10.5px;color:#75798c">Thursday</div>
+<div style="align-self:flex-start;max-width:78%;background:var(--color-surface);border-radius:12px 12px 12px 4px;padding:10px 12px;font-size:13px">Hey! Is the room still open for mid-June? I'm interning in SLU through August.</div>
+<div style="align-self:flex-end;max-width:78%;background:#423a6a;color:#f5f4ff;border-radius:12px 12px 4px 12px;padding:10px 12px;font-size:13px">Yes — I fly out Jun 10, so anytime after that works. Landlord already signed off on subletting.</div>
+<div style="align-self:center;width:100%;background:#1c1e2b;border-radius:10px;padding:12px 13px;box-shadow:var(--shadow-sm)"><div class="row" style="gap:8px;margin-bottom:6px"><i class="ph ph-calendar-check" style="color:var(--color-accent);font-size:15px"></i><div style="font:500 12px Inter">Dates agreed · Jun 15 – Sep 1</div></div><div style="font-size:11.5px;color:#9397ab;margin-bottom:10px">Both of you confirmed this window. Alex can now accept your request.</div><a class="btn btn-primary btn-block" href="#1g" style="margin-top:0">View request</a></div>
+<div style="align-self:flex-start;max-width:78%;background:var(--color-surface);border-radius:12px 12px 12px 4px;padding:10px 12px;font-size:13px">Sent the sublease for e-sign. Deposit goes to OrbitU escrow, not to me.</div>
+<div style="align-self:flex-end;max-width:78%;background:#423a6a;color:#f5f4ff;border-radius:12px 12px 4px 12px;padding:10px 12px;font-size:13px">Signing tonight. Can we overlap Jun 15 for the key handoff?</div>
+<div style="align-self:flex-start;font-size:10.5px;color:#75798c">Alex is typing…</div>
+</div>
+<div class="row" style="gap:9px;padding:11px 16px;border-top:1px solid var(--color-divider)"><button class="btn btn-icon btn-ghost"><i class="ph ph-plus"></i></button><div class="input" style="flex:1;display:flex;align-items:center;color:#75798c">Message Alex…</div><button class="btn btn-icon btn-primary"><i class="ph ph-paper-plane-right"></i></button></div>
+</div>
+</div>
+<div style="width:430px;display:flex;flex-direction:column;gap:14px">
+<div class="k">Inbox · same rules on desktop</div>
+<div class="scr" style="width:430px">
+<div class="row" style="gap:10px;padding:14px 18px;border-bottom:1px solid var(--color-divider)"><span class="brand" style="font-size:15px;margin:0"><i class="ph ph-chat-circle"></i>Messages</span><span class="tag tag-neutral" style="margin-left:auto">3 active</span></div>
+<div style="padding:6px 0">
+<div style="padding:13px 18px;background:#1c1e2b;border-left:2px solid var(--color-accent)"><div class="row" style="gap:11px"><div class="ph-img" style="width:36px;height:36px;border-radius:50%;flex:none;font-size:7px">av</div><div style="flex:1;min-width:0"><div class="row" style="justify-content:space-between"><div style="font:500 13.5px Inter">Alex K.</div><div style="font-size:11px;color:#75798c">2m</div></div><div style="font-size:12px;color:#b2b6ca;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Sent the sublease for e-sign. Deposit goes to…</div><span class="tag tag-accent" style="margin-top:5px">Request sent · Jun 15 – Sep 1</span></div></div></div>
+<div style="padding:13px 18px"><div class="row" style="gap:11px"><div class="ph-img" style="width:36px;height:36px;border-radius:50%;flex:none;font-size:7px">av</div><div style="flex:1;min-width:0"><div class="row" style="justify-content:space-between"><div style="font:500 13.5px Inter">Priya R.</div><div style="font-size:11px;color:#75798c">1h</div></div><div style="font-size:12px;color:#9397ab;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Would you consider $1,000 if I take all of…</div><span class="tag tag-neutral" style="margin-top:5px">Inquiry · no dates yet</span></div></div></div>
+<div style="padding:13px 18px"><div class="row" style="gap:11px"><div class="ph-img" style="width:36px;height:36px;border-radius:50%;flex:none;font-size:7px">av</div><div style="flex:1;min-width:0"><div class="row" style="justify-content:space-between"><div style="font:500 13.5px Inter">Marcus T.</div><div style="font-size:11px;color:#75798c">Yesterday</div></div><div style="font-size:12px;color:#9397ab;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Could I do Jun 20 – Aug 20 instead?</div><span class="tag tag-neutral" style="margin-top:5px">16-day gap flagged</span></div></div></div>
+</div>
+</div>
+<div style="background:#1c1e2b;border-radius:10px;padding:14px 15px;width:430px"><div class="row" style="gap:9px;align-items:flex-start"><i class="ph ph-shield-check" style="color:var(--color-accent);font-size:17px;margin-top:1px"></i><div style="font-size:12px;color:#9397ab;line-height:1.6"><b style="color:#e9e9ed;font-weight:500">Why deal state lives in the thread:</b> "dates agreed", "request sent" and "signed" are system cards, not claims either side typed. Off-platform payment requests are blocked and flagged.</div></div></div>
+</div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "mobile versions of <a class="dv-oid" href="#1d">1d</a> and <a class="dv-oid" href="#1e">1e</a>" · "add the roommate-matching questionnaire" · "make the AI match panel explain itself in more detail"</p>
+</section>
+
+</x-dc>
+</body>
+</html>
