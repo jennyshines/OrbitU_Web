@@ -1,0 +1,167 @@
+/* App-shell styles — ported from the OrbitU Nocturne mockup's shared style block. */
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: #101120;
+  color: #e9e9ed;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+a { text-decoration: none; }
+
+.page { display: flex; flex-direction: column; min-height: 100vh; }
+
+.scr {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  background: var(--color-bg);
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.mob {
+  width: 390px;
+  background: var(--color-bg);
+  border-radius: 26px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+.nav2 {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  padding: 15px 26px;
+  border-bottom: 1px solid var(--color-divider);
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font: 500 17px/1 Inter;
+  margin-right: auto;
+  letter-spacing: -0.01em;
+  color: inherit;
+}
+.brand i { color: var(--color-accent); font-size: 21px; }
+
+.nl { font-size: 13px; color: #b2b6ca; }
+.nl:hover { color: var(--color-accent); }
+
+.k {
+  font: 500 10.5px/1 Inter;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+  color: #75798c;
+}
+
+.ph-img {
+  background: repeating-linear-gradient(135deg, #232532 0 7px, #1c1e2b 7px 14px);
+  display: grid;
+  place-items: center;
+  color: #75798c;
+  font: 400 9.5px/1.5 ui-monospace, Menlo, monospace;
+  letter-spacing: .05em;
+  text-align: center;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.match {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font: 500 11px Inter;
+  color: #d2cefd;
+  background: #423a6a;
+  border-radius: 6px;
+  padding: 4px 9px;
+  white-space: nowrap;
+}
+
+.vbadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font: 500 10.5px Inter;
+  color: #cfd3e5;
+}
+.vbadge i { color: var(--color-accent); font-size: 13px; }
+
+.mapbg {
+  background: #1a1c2a;
+  background-image:
+    linear-gradient(rgba(147,151,171,.09) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(147,151,171,.09) 1px, transparent 1px);
+  background-size: 46px 46px;
+  position: relative;
+  overflow: hidden;
+}
+
+.pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font: 500 11px Inter;
+  background: #e9e9ed;
+  color: #161826;
+  padding: 4px 10px;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.55);
+  white-space: nowrap;
+}
+.pin-a { background: #968ae0; color: #f5f4ff; }
+
+.mstat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 20px 2px;
+  font: 500 11px Inter;
+  color: #b2b6ca;
+}
+.mstat i { font-size: 12px; margin-left: 4px; }
+
+.tabbar {
+  display: flex;
+  justify-content: space-around;
+  padding: 11px 0 16px;
+  border-top: 1px solid var(--color-divider);
+  color: #75798c;
+  font: 500 9.5px Inter;
+}
+.tabbar div { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.tabbar i { font-size: 19px; }
+.tabbar .active { color: #968ae0; }
+
+.step { display: flex; align-items: center; gap: 9px; font-size: 12.5px; color: #75798c; }
+.step b {
+  width: 20px; height: 20px; border-radius: 50%;
+  display: grid; place-items: center;
+  font: 500 10.5px Inter;
+  border: 1px solid rgba(233,233,237,.18);
+}
+.step-on { color: #e9e9ed; }
+.step-on b { border-color: var(--color-accent); color: var(--color-accent); }
+
+.row { display: flex; align-items: center; gap: 10px; }
+
+.srow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 0;
+  background: linear-gradient(to right, transparent, rgba(233,233,237,.08) 24px, rgba(233,233,237,.08) calc(100% - 24px), transparent) no-repeat bottom/100% 1px;
+}
+
+.bar { height: 6px; border-radius: 3px; background: #2b2741; overflow: hidden; }
+.bar span { display: block; height: 100%; background: var(--color-accent); border-radius: 3px; }
+
+button.btn { font-family: inherit; }
+button.btn-icon { background: transparent; }
